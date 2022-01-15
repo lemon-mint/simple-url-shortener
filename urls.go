@@ -24,7 +24,7 @@ func newURL(w http.ResponseWriter, r *http.Request) {
 	var id string
 	err = DB.BeginFunc(context.Background(), func(t pgx.Tx) error {
 	retry:
-		id := NewID()
+		id = NewID()
 		_, err := t.Exec(context.Background(),
 			`INSERT INTO urls (id, url) VALUES ($1, $2)`,
 			id, url)

@@ -21,21 +21,14 @@ import (
 var DB *pgxpool.Pool
 
 var (
-	siteKey   = os.Getenv("CAPTCHA_SITEKEY")
-	secretKey = os.Getenv("CAPTCHA_SECRETKEY")
+	secretKey string
 
-	client = hcaptcha.New(secretKey)
+	client *hcaptcha.Client
 
 	newURLForm *template.Template
 )
 
-type templateData struct {
-	SiteKey string
-}
-
-var tdata templateData = templateData{
-	SiteKey: siteKey,
-}
+var tdata string
 
 //go:embed templates/*
 var templatesFS embed.FS
@@ -66,7 +59,12 @@ func main() {
 	godotenv.Load()
 	lnHost := envaddr.Get(":9090")
 
-	DB, err := pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	secretKey = os.Getenv("CAPTCHA_SECRETKEY")
+	client = hcaptcha.New(secretKey)
+	tdata = os.Getenv("CAPTCHA_SITEKEY")
+
+	var err error
+	DB, err = pgxpool.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	FatalOnError(err)
 	defer DB.Close()
 	initDatabase()

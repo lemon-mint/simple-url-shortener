@@ -11,5 +11,5 @@ func NewID() string {
 	if err != nil {
 		panic(err)
 	}
-	return base32.StdEncoding.EncodeToString(buffer[:])
+	return base32.StdEncoding.EncodeToString(buffer[:])[:8]
 }
