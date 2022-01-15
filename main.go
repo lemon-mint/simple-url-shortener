@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"embed"
 	"html/template"
@@ -94,6 +95,11 @@ func main() {
 	})
 
 	mux.GET("/u/:id", redirect)
+
+	var templateBuffer bytes.Buffer
+	err = newURLForm.Execute(&templateBuffer, tdata)
+	FatalOnError(err)
+	indexHTML = templateBuffer.Bytes()
 
 	ln, err := net.Listen("tcp", lnHost)
 	if err != nil {
