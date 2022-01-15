@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hawkz/gdcss/gd.min.css">
+    <title>simple url shortener</title>
+</head>
+
+<body>
+    <main>
+        <header>
+            <h1>simple url shortener</h1>
+
+            <div>
+                <form action="/new" method="POST">
+                    <input type="url" name="url" id="url" placeholder="Enter a URL to shorten">
+
+                    <div class="h-captcha" data-sitekey="{{ .SiteKey }}"></div>
+
+                    <button type="submit" id="submit">Shorten</button>
+                </form>
+            </div>
+        </header>
+    </main>
+
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+</body>
+
+</html>
