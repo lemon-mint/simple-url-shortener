@@ -15,18 +15,25 @@
             <h1>simple url shortener</h1>
 
             <div>
-                <form action="/new" method="POST">
+                <form action="/new" method="POST" id="newurlform">
                     <input type="url" name="url" id="url" placeholder="Enter a URL to shorten">
+                    <input type="hidden" style="display: none;" hidden id="sitekey" name="sitekey" value="{{.}}">
+                    <div>
+                        This site is protected by hCaptcha and its
+                        <a href="https://hcaptcha.com/privacy">Privacy Policy</a> and
+                        <a href="https://hcaptcha.com/terms">Terms of Service</a> apply.
+                    </div>
 
-                    <div class="h-captcha" data-sitekey="{{.}}"></div>
-
-                    <button type="submit" id="submit">Shorten</button>
+                    <button class="h-captcha" data-sitekey="{{.}}" data-callback="onSubmit">
+                        Shorten
+                    </button>
                 </form>
             </div>
         </header>
     </main>
 
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="/public/index.js"></script>
 </body>
 
 </html>

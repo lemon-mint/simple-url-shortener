@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/jackc/pgx/v4"
@@ -40,8 +41,8 @@ func newURL(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "https://%s/u/%s", r.Host, id)
+	// Redirect to the result page
+	http.Redirect(w, r, fmt.Sprintf("/result/%s", id), http.StatusSeeOther)
 }
 
 func redirect(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -59,4 +60,26 @@ func redirect(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	http.Redirect(w, r, url, http.StatusMovedPermanently)
+}
+
+func result(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	id := ps.ByName("id")
+	var url string
+	err := DB.QueryRow(context.Background(),
+		`SELECT url FROM urls WHERE id = $1`,
+		id).Scan(&url)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = templates.ExecuteTemplate(w, "result.html", fmt.Sprintf("https://%s/%s", r.Host, id))
+	if err != nil {
+		log.Printf("Error executing template: %v", err)
+	}
 }

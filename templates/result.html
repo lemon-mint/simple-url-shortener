@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hawkz/gdcss/gd.min.css">
+    <title>simple url shortener</title>
+</head>
+
+<body>
+    <main>
+        <header>
+            <h1>Result</h1>
+
+            <div>
+                <input type="url" readonly id="url" value="{{.}}">
+            </div>
+
+            <button class="btn" data-clipboard-action="copy" data-clipboard-target="#url">
+                Copy to clipboard
+            </button>
+        </header>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+    <script>
+        new ClipboardJS('.btn');
+    </script>
+</body>
+
+</html>

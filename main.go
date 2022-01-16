@@ -5,6 +5,7 @@ import (
 	"context"
 	"embed"
 	"html/template"
+	"io/fs"
 	"log"
 	"net"
 	"net/http"
@@ -25,13 +26,16 @@ var (
 
 	client *hcaptcha.Client
 
-	newURLForm *template.Template
+	templates *template.Template
 )
 
 var tdata string
 
 //go:embed templates/*
 var templatesFS embed.FS
+
+//go:embed public/*
+var staticFS embed.FS
 
 func FatalOnError(err error) {
 	switch err {
@@ -69,10 +73,15 @@ func main() {
 	defer DB.Close()
 	initDatabase()
 
-	if f, err := os.Stat("templates/index.html"); err == nil && !f.IsDir() {
-		newURLForm = template.Must(template.ParseFiles("templates/index.html"))
+	templates = template.Must(template.ParseFS(templatesFS, "templates/*"))
+
+	var staticHTTPFS http.FileSystem
+	if f, err := os.Stat("public"); err == nil && f.IsDir() {
+		staticHTTPFS = http.Dir("public")
 	} else {
-		newURLForm = template.Must(template.ParseFS(templatesFS))
+		f, err := fs.Sub(staticFS, "public")
+		FatalOnError(err)
+		staticHTTPFS = http.FS(f)
 	}
 
 	mux := httprouter.New()
@@ -82,6 +91,8 @@ func main() {
 	}
 	mux.GET("/healthz", healthz)
 	mux.GET("/health", healthz)
+
+	mux.ServeFiles("/public/*filepath", staticHTTPFS)
 
 	mux.GET("/", index)
 
@@ -93,9 +104,10 @@ func main() {
 	})
 
 	mux.GET("/u/:id", redirect)
+	mux.GET("/result/:id", result)
 
 	var templateBuffer bytes.Buffer
-	err = newURLForm.Execute(&templateBuffer, tdata)
+	err = templates.ExecuteTemplate(&templateBuffer, "index.html", tdata)
 	FatalOnError(err)
 	indexHTML = templateBuffer.Bytes()
 
