@@ -6,7 +6,7 @@ import (
 )
 
 func NewID(len int) string {
-	var buffer [16]byte
+	var buffer = make([]byte, len)
 	_, err := rand.Read(buffer[:])
 	if err != nil {
 		panic(err)

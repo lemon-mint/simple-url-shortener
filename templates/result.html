@@ -13,14 +13,19 @@
     <main>
         <header>
             <h1>Result</h1>
-
             <div>
-                <input type="url" readonly id="url" value="{{.}}">
-            </div>
+                <input type="url" readonly id="url" value="{{.URL}}">
+                <label for="url">URL</label>
+                
+                <button class="btn" data-clipboard-action="copy" data-clipboard-target="#url">
+                    Copy to clipboard
+                </button>
 
-            <button class="btn" data-clipboard-action="copy" data-clipboard-target="#url">
-                Copy to clipboard
-            </button>
+                <form action="/delete/{{.ID}}" method="POST">
+                    <input type="hidden" name="password" value="{{.AdminPassword}}" style="display: none;" hidden>
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
         </header>
     </main>
 
