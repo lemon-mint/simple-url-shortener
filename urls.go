@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/julienschmidt/httprouter"
 )
+
+var idlen int = 4
 
 func newURL(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
@@ -24,13 +27,20 @@ func newURL(w http.ResponseWriter, r *http.Request) {
 	}
 	var id string
 	err = DB.BeginFunc(context.Background(), func(t pgx.Tx) error {
+		var retryCount int
 	retry:
-		id = NewID()
+		id = NewID(idlen)
+		// If primary key collision, retry
 		_, err := t.Exec(context.Background(),
-			`INSERT INTO urls (id, url) VALUES ($1, $2)`,
+			`INSERT INTO urls (id, url, needs_captcha, needs_password) VALUES ($1, $2, false, false)`,
 			id, url)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			log.Printf("Error inserting into urls: %v", err)
+			if strings.Contains(err.Error(), "duplicate key value") {
+				if retryCount > 2 {
+					idlen++ // doesn't matter atomicity, just to make it more likely to succeed
+				}
+				retryCount++
 				goto retry
 			}
 			return err
@@ -38,6 +48,7 @@ func newURL(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 	if err != nil {
+		log.Printf("Error inserting into urls: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
