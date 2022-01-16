@@ -49,6 +49,7 @@ func FatalOnError(err error) {
 }
 
 func initDatabase() {
+	/* v1
 	FatalOnError(DB.QueryRow(
 		context.Background(),
 		`CREATE TABLE IF NOT EXISTS urls (
@@ -56,6 +57,40 @@ func initDatabase() {
 			url TEXT NOT NULL,
 			created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT (now() AT TIME ZONE 'UTC')
 		);`,
+	).Scan())
+	*/
+
+	// v2
+	FatalOnError(DB.QueryRow(
+		context.Background(),
+		`CREATE TABLE IF NOT EXISTS urls (
+			id TEXT PRIMARY KEY,
+			url TEXT NOT NULL,
+			needs_captcha BOOLEAN NOT NULL DEFAULT FALSE,
+			needs_password BOOLEAN NOT NULL DEFAULT FALSE,
+			created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT (now() AT TIME ZONE 'UTC')
+		);`,
+	).Scan())
+
+	FatalOnError(DB.QueryRow(
+		context.Background(),
+		`CREATE TABLE IF NOT EXISTS passwords (
+			id TEXT PRIMARY KEY,
+			salt TEXT NOT NULL,
+			password TEXT NOT NULL,
+			created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT (now() AT TIME ZONE 'UTC')
+		);`,
+	).Scan())
+
+	// ALTER TABLES v1 => v2
+	FatalOnError(DB.QueryRow(
+		context.Background(),
+		`ALTER TABLE urls ADD COLUMN IF NOT EXISTS needs_captcha BOOLEAN NOT NULL DEFAULT FALSE;`,
+	).Scan())
+
+	FatalOnError(DB.QueryRow(
+		context.Background(),
+		`ALTER TABLE urls ADD COLUMN IF NOT EXISTS needs_password BOOLEAN NOT NULL DEFAULT FALSE;`,
 	).Scan())
 }
 
