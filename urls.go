@@ -78,7 +78,7 @@ func result(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	err = templates.ExecuteTemplate(w, "result.html", fmt.Sprintf("https://%s/%s", r.Host, id))
+	err = templates.ExecuteTemplate(w, "result.html", fmt.Sprintf("https://%s/u/%s", r.Host, id))
 	if err != nil {
 		log.Printf("Error executing template: %v", err)
 	}
