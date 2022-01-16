@@ -59,7 +59,7 @@ func redirect(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, url, http.StatusMovedPermanently)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func result(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
