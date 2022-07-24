@@ -1,7 +1,7 @@
 module github.com/lemon-mint/simple-url-shortener
 
 // +heroku goVersion go1.17
-go 1.17
+go 1.18
 
 require (
 	github.com/jackc/pgx/v4 v4.14.1
